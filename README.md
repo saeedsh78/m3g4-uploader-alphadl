@@ -46,7 +46,7 @@ Please be kind to star and fork this repo!✨😇
 
 <br>
   
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/aeedsh78/mega-uploader-alphadl)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/saeedsh78/mega-uploader-alphadl)
 </details>
 
 <details>
