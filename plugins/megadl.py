@@ -70,7 +70,7 @@ async def cb_data(bot, update):
 
     await bot.delete_messages(
         chat_id=update.from_user.id,
-        message_id=message_id
+        message_ids=message_id
             )
     usermsgnew = await bot.send_message(
                 chat_id=update.from_user.id,
