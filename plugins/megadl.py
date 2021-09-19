@@ -4,6 +4,8 @@
 # Solely coded by xmysteriousx
 
 import logging
+
+from pyrogram.methods.messages import send_message
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -46,7 +48,7 @@ downlaoding_in_megacmd = False
 @Client.on_callback_query()
 async def cb_data(bot, update):
     cb_data = update.data
-    fname, fsize, url, usermsg, tg_send_type = cb_data.split("|")
+    fname, fsize, url, user_message_id,message_id, tg_send_type = cb_data.split("|")
     global downlaoding_in_megacmd
     description = ""
     megalink = None
@@ -63,6 +65,16 @@ async def cb_data(bot, update):
     Make sure your link is <b>Valid (not expired or been removed)</b>
 
     Make sure your link is <b>not password protected or encrypted or private</b>"""
+
+    await bot.delete_messages(
+        chat_id=update.from_user.id,
+        message_id=message_id
+    )
+    usermsg = await bot.send_message(
+                chat_id=update.from_user.id,
+                text=f"""<b>Downloading...⏳</b>""",
+                reply_to_message_id=user_message_id
+            )
     try:
         if ".mp4" in fname:
             description_parts = fname.split(".mp4")
@@ -75,7 +87,7 @@ async def cb_data(bot, update):
     except Exception as e:
         logger.info(e)
         await bot.edit_message_text(
-            chat_id=update.chat.id,
+            chat_id=update.from_user.id,
             text="Error: "+ str(e) + "\n\n" + error_text,
             message_id=usermsg.message_id
         )
@@ -85,7 +97,7 @@ async def cb_data(bot, update):
             max_file_size = 2040108421
             the_file_size = int(fsize)
             await bot.edit_message_text(
-                chat_id=update.chat.id,
+                chat_id=update.from_user.id,
                 text="<b>Files detected</b> : " + fname + "\n" + "<b>Size</b> : " + humanbytes(the_file_size) + "\n" + "\n" + Translation.DOWNLOAD_START,
                 message_id=usermsg.message_id
             )
@@ -122,7 +134,7 @@ async def cb_data(bot, update):
                     try:
                         await bot.edit_message_text(
                             text="Error: "+ e,
-                            chat_id=update.chat.id,
+                            chat_id=update.from_user.id,
                             message_id=usermsg.message_id
                         )
                         shutil.rmtree(tmp_directory_for_each_user)
@@ -144,7 +156,7 @@ async def cb_data(bot, update):
                         downlaoding_in_megacmd = False
                         await bot.edit_message_text(
                             text="Error: "+ e,
-                            chat_id=update.chat.id,
+                            chat_id=update.from_user.id,
                             message_id=usermsg.message_id
                         )
                         shutil.rmtree(tmp_directory_for_each_user)
@@ -159,7 +171,7 @@ async def cb_data(bot, update):
                 if file_size > 2040108421:
                     try:
                         await bot.edit_message_text(
-                            chat_id=update.chat.id,
+                            chat_id=update.from_user.id,
                             text="<b>Detected Size</b> : " + humanbytes(file_size) + "\n" + "\n" + "<i>Splitting files...</i>\n\n<code>The downloaded file is bigger than 2GB! But due to telegram API limits I can't upload files which are bigger than 2GB 🥺. So I will split the files and upload them to you. 😇</code>",
                             message_id=usermsg.message_id
                         )
@@ -183,7 +195,7 @@ async def cb_data(bot, update):
                                     if filename == "fs_manifest.csv":
                                         continue
                                     await bot.edit_message_text(
-                                        chat_id=update.chat.id,
+                                        chat_id=update.from_user.id,
                                         text=Translation.UPLOAD_START,
                                         message_id=usermsg.message_id
                                     )
@@ -192,7 +204,7 @@ async def cb_data(bot, update):
                             time_taken_for_upload = (end_two - end_one).seconds
                             await bot.edit_message_text(
                                 text=Translation.AFTER_SUCCESSFUL_UPLOAD_MSG_WITH_TS.format(time_taken_for_download, time_taken_for_upload),
-                                chat_id=update.chat.id,
+                                chat_id=update.from_user.id,
                                 message_id=usermsg.message_id,
                                 disable_web_page_preview=True
                             )
@@ -205,7 +217,7 @@ async def cb_data(bot, update):
                     except Exception as e:
                         await bot.edit_message_text(
                             text="Error: "+ e,
-                            chat_id=update.chat.id,
+                            chat_id=update.from_user.id,
                             message_id=usermsg.message_id
                         )
                         try:
@@ -217,7 +229,7 @@ async def cb_data(bot, update):
                 else:
                     try:
                         await bot.edit_message_text(
-                            chat_id=update.chat.id,
+                            chat_id=update.from_user.id,
                             text=Translation.UPLOAD_START,
                             message_id=usermsg.message_id
                         )
@@ -226,7 +238,7 @@ async def cb_data(bot, update):
                         time_taken_for_upload = (end_two - end_one).seconds
                         await bot.edit_message_text(
                             text=Translation.AFTER_SUCCESSFUL_UPLOAD_MSG_WITH_TS.format(time_taken_for_download, time_taken_for_upload),
-                            chat_id=update.chat.id,
+                            chat_id=update.from_user.id,
                             message_id=usermsg.message_id,
                             disable_web_page_preview=True
                         )
@@ -240,7 +252,7 @@ async def cb_data(bot, update):
                         logger.info(e)
                         await bot.edit_message_text(
                             text="Error: "+ e,
-                            chat_id=update.chat.id,
+                            chat_id=update.from_user.id,
                             message_id=usermsg.message_id
                         )
                         try:
@@ -253,7 +265,7 @@ async def cb_data(bot, update):
             logger.info(e)
             await bot.edit_message_text(
                 text="Error: "+ e,
-                chat_id=update.chat.id,
+                chat_id=update.from_user.id,
                 message_id=usermsg.message_id
             )
             try:
@@ -264,14 +276,14 @@ async def cb_data(bot, update):
                 return
         else:
             await bot.send_message(
-                chat_id=update.chat.id,
+                chat_id=update.from_user.id,
                 text=f"""Sorry! Folder links are not supported!""",
                 reply_to_message_id=update.message_id
             )
             return
     else:
         await bot.send_message(
-            chat_id=update.chat.id,
+            chat_id=update.from_user.id,
             text=f"""<b>I am a mega.nz link downloader bot! 😑</b>\n\nThis not a mega.nz link. 😡""",
             reply_to_message_id=update.message_id
         )
@@ -343,8 +355,8 @@ async def mega_dl(bot, update):
                     logger.info(fname)
                     a=1
                 if a == 1:
-                    data_vid = "{}|{}|{}|{}|{}".format(fname, fsize, url, usermsg, "vid")
-                    data_doc = "{}|{}|{}|{}|{}".format(fname, fsize, url, usermsg, "doc")
+                    data_vid = "{}|{}|{}|{}|{}|{}".format(fname, fsize, url, update.message_id, usermsg.message_id, "vid")
+                    data_doc = "{}|{}|{}|{}|{}|{}".format(fname, fsize, url, update.message_id, usermsg.message_id, "doc")
                     Buttons = [[
                         InlineKeyboardButton("Video", callback_data=(data_vid).encode("UTF-8")),
                         InlineKeyboardButton("File", callback_data=(data_doc).encode("UTF-8"))
