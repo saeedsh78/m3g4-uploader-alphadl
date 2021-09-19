@@ -330,11 +330,9 @@ async def mega_dl(bot, update):
     global usermsg
     global url
     url = update.text
-    data_vid = "{}".format("vid")
-    data_doc = "{}".format("doc")
     Buttons = [[
-        InlineKeyboardButton("Video", callback_data=(data_vid).encode("UTF-8")),
-        InlineKeyboardButton("File", callback_data=(data_doc).encode("UTF-8"))
+        InlineKeyboardButton("Video", callback_data='vid'),
+        InlineKeyboardButton("File", callback_data='doc')
     ]]
     reply_markup = InlineKeyboardMarkup(Buttons)
     usermsg = await bot.send_message(
