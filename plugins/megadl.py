@@ -1,3 +1,8 @@
+# The code you are about to see below is a work of an absolute(100%) noob. 
+# Ok now go ahead you will see what I mean!
+
+# Solely coded by xmysteriousx
+
 import logging
 
 from pyrogram.methods.messages import send_message
@@ -39,12 +44,14 @@ from database.blacklist import check_blacklist
 from database.userchats import add_chat
     
 downlaoding_in_megacmd = False
+url = None
 
 @Client.on_callback_query()
 async def cb_data(bot, update):
     cb_data = update.data
-    url, user_message_id,message_id, tg_send_type = cb_data.split("|")
+    user_message_id,message_id, tg_send_type = cb_data.split("|")
     global downlaoding_in_megacmd
+    global url
     description = ""
     megalink = None
     a = None
@@ -325,6 +332,7 @@ async def mega_dl(bot, update):
         await update.reply_text("Sorry! You are Banned!")
         return
     add_chat(fuser)
+    global url 
     url = update.text
     if "mega.nz" in url:
         if ("folder" or "#F" or "#N") not in url:
@@ -360,8 +368,8 @@ async def mega_dl(bot, update):
                     logger.info(fname)
                     a=1
                 if a == 1:
-                    data_vid = "{}|{}|{}|{}".format(url, update.message_id, usermsg.message_id, "vid")
-                    data_doc = "{}|{}|{}|{}".format(url, update.message_id, usermsg.message_id, "doc")
+                    data_vid = "{}|{}|{}".format(update.message_id, usermsg.message_id, "vid")
+                    data_doc = "{}|{}|{}".format(update.message_id, usermsg.message_id, "doc")
                     Buttons = [[
                         InlineKeyboardButton("Video", callback_data=(data_vid).encode("UTF-8")),
                         InlineKeyboardButton("File", callback_data=(data_doc).encode("UTF-8"))
