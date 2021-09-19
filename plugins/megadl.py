@@ -66,9 +66,7 @@ async def mega_dl(bot, update):
             y = None
             tg_send_type = None
             error_text = f"""Sorry some error occured!
-
     Make sure your link is <b>Valid (not expired or been removed)</b>
-
     Make sure your link is <b>not password protected or encrypted or private</b>"""
             try:
                 linkinfo = m.get_public_url_info(url)
@@ -81,24 +79,10 @@ async def mega_dl(bot, update):
                     logger.info(fname)
                     a=1
                 if a == 1:
-                    inline_keyboard = [
-                        InlineKeyboardButton(
-                    "Video",
-                    callback_data='vid'
-                ),
-                InlineKeyboardButton(
-                    "File",
-                    callback_data='doc'
-                )
-                    ]
-                    reply_markup = InlineKeyboardMarkup(inline_keyboard)
-                    await bot.edit_message_text(
-                                chat_id=update.chat.id,
-                                text=f"""<b>Select Method Send</b>""",
-                                reply_markup=reply_markup,
-                                message_id=usermsg.message_id
-                            )
-                tg_send_type = update.data
+                    if ".mp4" in fname or ".mkv" in fname:
+                        tg_send_type="vid"
+                    else:
+                        tg_send_type="doc"
                 if ".mp4" in fname:
                     description_parts = fname.split(".mp4")
                     description = description_parts[0]
@@ -111,7 +95,7 @@ async def mega_dl(bot, update):
                 logger.info(e)
                 await bot.edit_message_text(
                     chat_id=update.chat.id,
-                    text="Error: "+ str(e) + "\n\n" + error_text,
+                    text="Error: "+ e + "\n\n" + error_text,
                     message_id=usermsg.message_id
                 )
                 return
