@@ -68,17 +68,17 @@ async def cb_data(bot, update):
 
     Make sure your link is <b>not password protected or encrypted or private</b>"""
 
-    
-    try:
-        await bot.delete_messages(
+    await bot.delete_messages(
         chat_id=update.from_user.id,
         message_id=message_id
             )
-        usermsgnew = await bot.send_message(
+    usermsgnew = await bot.send_message(
                 chat_id=update.from_user.id,
                 text=f"""<b>Downloading...⏳</b>""",
                 reply_to_message_id=user_message_id
             )
+    
+    try:
         linkinfo = m.get_public_url_info(url)
         logger.info(linkinfo)
         if "|" in linkinfo:
