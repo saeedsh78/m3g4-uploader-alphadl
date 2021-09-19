@@ -117,7 +117,7 @@ async def mega_dl(bot, update):
                 logger.info(e)
                 await bot.edit_message_text(
                     chat_id=update.chat.id,
-                    text="Error: "+ e + "\n\n" + error_text,
+                    text="Error: "+ str(e) + "\n\n" + error_text,
                     message_id=usermsg.message_id
                 )
                 return
@@ -162,7 +162,7 @@ async def mega_dl(bot, update):
                             logger.info(e)
                             try:
                                 await bot.edit_message_text(
-                                    text="Error: "+ e,
+                                    text="Error: "+ str(e),
                                     chat_id=update.chat.id,
                                     message_id=usermsg.message_id
                                 )
@@ -184,7 +184,7 @@ async def mega_dl(bot, update):
                             try:
                                 downlaoding_in_megacmd = False
                                 await bot.edit_message_text(
-                                    text="Error: "+ e,
+                                    text="Error: "+ str(e),
                                     chat_id=update.chat.id,
                                     message_id=usermsg.message_id
                                 )
@@ -245,7 +245,7 @@ async def mega_dl(bot, update):
                                         return
                             except Exception as e:
                                 await bot.edit_message_text(
-                                    text="Error: "+ e,
+                                    text="Error: "+ str(e),
                                     chat_id=update.chat.id,
                                     message_id=usermsg.message_id
                                 )
@@ -280,7 +280,7 @@ async def mega_dl(bot, update):
                             except Exception as e:
                                 logger.info(e)
                                 await bot.edit_message_text(
-                                    text="Error: "+ e,
+                                    text="Error: "+ str(e),
                                     chat_id=update.chat.id,
                                     message_id=usermsg.message_id
                                 )
@@ -293,7 +293,7 @@ async def mega_dl(bot, update):
                 except Exception as e:
                     logger.info(e)
                     await bot.edit_message_text(
-                        text="Error: "+ e,
+                        text="Error: "+ str(e),
                         chat_id=update.chat.id,
                         message_id=usermsg.message_id
                     )
@@ -333,7 +333,7 @@ def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, upd
                 process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user, "--config", cred_location]) # If mega.nz credentials are provided your link will be downloaded from megatools using quota in your account!. Helps to avoid quota limits if you use a pro/business mega account!
             except Exception as e:
                 logger.info(e)
-                update.reply_text(f"Error : `{e}` occured!\n\n<b>.Maybe because there is some error in your `mega.ini` file! Please send your file, exatly as mentioned in the readme 👉 https://github.com/XMYSTERlOUSX/mega-link-downloader-bot/blob/main/README.md</b>\n\n<i>Downloading your file now without logging in to your account...</i>", disable_web_page_preview=True)
+                update.reply_text(f"Error : `{str(e)}` occured!\n\n<b>.Maybe because there is some error in your `mega.ini` file! Please send your file, exatly as mentioned in the readme 👉 https://github.com/XMYSTERlOUSX/mega-link-downloader-bot/blob/main/README.md</b>\n\n<i>Downloading your file now without logging in to your account...</i>", disable_web_page_preview=True)
                 process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user])
         else:
             process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user])
