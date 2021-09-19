@@ -99,7 +99,10 @@ async def mega_dl(bot, update):
                                 message_id=usermsg.message_id
                             )
                     while tg_send_type == None:
-                        continue
+                        try:
+                            tg_send_type = update.data
+                        except:
+                            continue
                 if ".mp4" in fname:
                     description_parts = fname.split(".mp4")
                     description = description_parts[0]
