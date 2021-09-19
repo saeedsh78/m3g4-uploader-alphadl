@@ -100,7 +100,6 @@ async def mega_dl(bot, update):
                             )
                     while tg_send_type == None:
                         try:
-                            print(update)
                             tg_send_type = update.data
                         except:
                             continue
