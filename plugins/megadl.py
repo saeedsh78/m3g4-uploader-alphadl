@@ -86,17 +86,11 @@ async def mega_dl(bot, update):
                     logger.info(fname)
                     a=1
                 if a == 1:
-                    inline_keyboard = [
-                        InlineKeyboardButton(
-                    "Video",
-                    callback_data=("vid").encode("UTF-8")
-                ),
-                InlineKeyboardButton(
-                    "File",
-                    callback_data=("doc").encode("UTF-8")
-                )
-                    ]
-                    reply_markup = InlineKeyboardMarkup(inline_keyboard)
+                    Buttons = [[
+                        InlineKeyboardButton("Video", callback_data=("vid").encode("UTF-8")),
+                        InlineKeyboardButton("File", callback_data=("doc").encode("UTF-8"))
+                    ]]
+                    reply_markup = InlineKeyboardMarkup(Buttons)
                     await bot.edit_message_text(
                                 chat_id=update.chat.id,
                                 text=f"""<b>Select Method Send</b>""",
