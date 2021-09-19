@@ -49,7 +49,7 @@ url = None
 @Client.on_callback_query()
 async def cb_data(bot, update):
     cb_data = update.data
-    user_message_id,message_id, tg_send_type = cb_data.split("|")
+    fname, fsize, user_message_id, message_id, tg_send_type = cb_data.split("|")
     global downlaoding_in_megacmd
     global url
     description = ""
@@ -79,15 +79,7 @@ async def cb_data(bot, update):
             )
     
     try:
-        linkinfo = m.get_public_url_info(url)
-        logger.info(linkinfo)
-        if "|" in linkinfo:
-            info_parts = linkinfo.split("|")
-            fsize = info_parts[0]
-            fname = info_parts[1]
-            logger.info(fsize)
-            logger.info(fname)
-            a=1
+        a=1
         if ".mp4" in fname:
             description_parts = fname.split(".mp4")
             description = description_parts[0]
@@ -368,8 +360,8 @@ async def mega_dl(bot, update):
                     logger.info(fname)
                     a=1
                 if a == 1:
-                    data_vid = "{}|{}|{}".format(update.message_id, usermsg.message_id, "vid")
-                    data_doc = "{}|{}|{}".format(update.message_id, usermsg.message_id, "doc")
+                    data_vid = "{}|{}|{}|{}|{}".format(fname, fsize, update.message_id, usermsg.message_id, "vid")
+                    data_doc = "{}|{}|{}|{}|{}".format(fname, fsize, update.message_id, usermsg.message_id, "doc")
                     Buttons = [[
                         InlineKeyboardButton("Video", callback_data=(data_vid).encode("UTF-8")),
                         InlineKeyboardButton("File", callback_data=(data_doc).encode("UTF-8"))
