@@ -89,11 +89,11 @@ async def mega_dl(bot, update):
                     inline_keyboard = [
                         InlineKeyboardButton(
                     "Video",
-                    callback_data='vid'
+                    callback_data=("vid").encode("UTF-8")
                 ),
                 InlineKeyboardButton(
                     "File",
-                    callback_data='doc'
+                    callback_data=("doc").encode("UTF-8")
                 )
                     ]
                     reply_markup = InlineKeyboardMarkup(inline_keyboard)
@@ -104,7 +104,7 @@ async def mega_dl(bot, update):
                                 message_id=usermsg.message_id,
                                 reply_to_message_id=update.message_id
                             )
-                    tg_send_type = update.data
+                tg_send_type = update.data
                 if ".mp4" in fname:
                     description_parts = fname.split(".mp4")
                     description = description_parts[0]
@@ -117,7 +117,7 @@ async def mega_dl(bot, update):
                 logger.info(e)
                 await bot.edit_message_text(
                     chat_id=update.chat.id,
-                    text="Error: "+ e + "\n\n" + error_text,
+                    text="Error: "+ str(e) + "\n\n" + error_text,
                     message_id=usermsg.message_id
                 )
                 return
