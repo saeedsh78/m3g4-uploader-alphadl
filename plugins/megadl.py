@@ -102,7 +102,6 @@ async def mega_dl(bot, update):
                                 text=f"""<b>Select Method Send</b>""",
                                 reply_markup=reply_markup,
                                 message_id=usermsg.message_id,
-                                reply_to_message_id=update.message_id
                             )
                 tg_send_type = update.data
                 if ".mp4" in fname:
