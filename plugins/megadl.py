@@ -1,8 +1,3 @@
-# The code you are about to see below is a work of an absolute(100%) noob. 
-# Ok now go ahead you will see what I mean!
-
-# Solely coded by xmysteriousx
-
 import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
