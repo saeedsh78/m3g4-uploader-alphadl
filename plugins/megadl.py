@@ -4,6 +4,8 @@
 # Solely coded by xmysteriousx
 
 import logging
+
+from pyrogram.methods import messages
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -44,12 +46,14 @@ from database.userchats import add_chat
 downlaoding_in_megacmd = False
 usermsg = None
 url = None
+messageid = None
 
 @Client.on_callback_query()
 async def cb_data(bot, update):
     global downlaoding_in_megacmd
     global usermsg
     global url
+    global messageid
     fuser = update.from_user.id
     if check_blacklist(fuser):
         await update.reply_text("Sorry! You are Banned!")
@@ -141,7 +145,7 @@ async def cb_data(bot, update):
                         try:
                             # Using megatools for downloading links because MEGAcmd doesn't support parallel downloads at once. (This method is also speed.)
                             loop = get_running_loop()
-                            await loop.run_in_executor(None, partial(download_mega_docs, megalink, tmp_directory_for_each_user, cred_location, update))
+                            await loop.run_in_executor(None, partial(download_mega_docs, megalink, tmp_directory_for_each_user, cred_location, update, bot))
                             d=1
                         except Exception as e:
                             logger.info(e)
@@ -247,7 +251,7 @@ async def cb_data(bot, update):
                                     text=Translation.UPLOAD_START,
                                     message_id=usermsg.message_id
                                 )
-                                await send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg)
+                                await send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg, messageid)
                                 end_two = datetime.now()
                                 time_taken_for_upload = (end_two - end_one).seconds
                                 await bot.edit_message_text(
@@ -289,17 +293,17 @@ async def cb_data(bot, update):
                         logger.info(e)
                         return
         else:
-            await bot.send_message(
+            await bot.edit_message_text(
                 chat_id=update.from_user.id,
                 text=f"""Sorry! Folder links are not supported!""",
-                reply_to_message_id=update.message_id
+                message_id=usermsg.message_id
             )
             return
     else:
-        await bot.send_message(
+        await bot.edit_message_text(
             chat_id=update.from_user.id,
             text=f"""<b>I am a mega.nz link downloader bot! 😑</b>\n\nThis not a mega.nz link. 😡""",
-            reply_to_message_id=update.message_id
+            message_id=usermsg.message_id
         )
         return
 
@@ -311,14 +315,20 @@ def download_mega_files(megalink, tmp_directory_for_each_user):
         downlaoding_in_megacmd = False
         logger.info(e)
 
-def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, update):
+def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, update, bot):
+    global usermsg
     try:
         if os.path.exists(cred_location):
             try:
                 process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user, "--config", cred_location]) # If mega.nz credentials are provided your link will be downloaded from megatools using quota in your account!. Helps to avoid quota limits if you use a pro/business mega account!
             except Exception as e:
                 logger.info(e)
-                update.reply_text(f"Error : `{e}` occured!\n\n<b>.Maybe because there is some error in your `mega.ini` file! Please send your file, exatly as mentioned in the readme 👉 https://github.com/XMYSTERlOUSX/mega-link-downloader-bot/blob/main/README.md</b>\n\n<i>Downloading your file now without logging in to your account...</i>", disable_web_page_preview=True)
+                bot.edit_message_text(
+                        chat_id=update.from_user.id,
+                        text = f"Error : `{e}` occured!\n\n<b>.Maybe because there is some error in your `mega.ini` file! Please send your file, exatly as mentioned in the readme 👉 https://github.com/XMYSTERlOUSX/mega-link-downloader-bot/blob/main/README.md</b>\n\n<i>Downloading your file now without logging in to your account...</i>",
+                        disable_web_page_preview=True,
+                        message_id=usermsg.message_id
+                        )
                 process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user])
         else:
             process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user])
@@ -329,6 +339,7 @@ def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, upd
 async def mega_dl(bot, update):
     global usermsg
     global url
+    global messageid
     url = update.text
     Buttons = [[
         InlineKeyboardButton("Video", callback_data='vid'),
@@ -341,3 +352,4 @@ async def mega_dl(bot, update):
                 reply_markup=reply_markup,
                 reply_to_message_id=update.message_id
             )
+    messageid = update.message_id
