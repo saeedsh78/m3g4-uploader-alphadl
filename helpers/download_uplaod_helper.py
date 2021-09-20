@@ -122,7 +122,6 @@ async def send_file(bot, update, tg_send_type, thumb_image_path, download_direct
         )
     start_time = time.time()
     if tg_send_type == "vid":
-        await update.send_chat_action(chat_id = update.from_user.id, action = "upload_video")
         megavid = await bot.send_video(
             chat_id=update.from_user.id,
             video=download_directory,
@@ -142,7 +141,6 @@ async def send_file(bot, update, tg_send_type, thumb_image_path, download_direct
             )
         )
     elif tg_send_type == "doc":
-        await update.send_chat_action(chat_id = update.from_user.id, action = "upload_document")
         megadoc = await bot.send_document(
             chat_id=update.from_user.id,
             document=download_directory,
