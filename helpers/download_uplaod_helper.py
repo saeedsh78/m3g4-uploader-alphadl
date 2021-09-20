@@ -88,7 +88,7 @@ async def send_splitted_file(bot, update, tg_send_type, thumb_image_path, splite
             )
         )
         
-async def send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg):
+async def send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg, messageid):
     width = 0
     height = 0
     duration = 0
@@ -121,9 +121,9 @@ async def send_file(bot, update, tg_send_type, thumb_image_path, download_direct
         )
     start_time = time.time()
     if tg_send_type == "vid":
-        await update.reply_chat_action("upload_video")
+        await update.send_chat_action(chat_id = update.from_user.id, action = "upload_video")
         megavid = await bot.send_video(
-            chat_id=update.chat.id,
+            chat_id=update.from_user.id,
             video=download_directory,
             caption=description,
             parse_mode="HTML",
@@ -132,7 +132,7 @@ async def send_file(bot, update, tg_send_type, thumb_image_path, download_direct
             height= 200,
             supports_streaming=True,
             thumb=thumb_image_path,
-            reply_to_message_id=update.message_id,
+            reply_to_message_id=messageid,
             progress=progress_for_pyrogram,
             progress_args=(
                 Translation.UPLOAD_START,
@@ -141,14 +141,14 @@ async def send_file(bot, update, tg_send_type, thumb_image_path, download_direct
             )
         )
     elif tg_send_type == "doc":
-        await update.reply_chat_action("upload_document")
+        await update.send_chat_action(chat_id = update.from_user.id, action = "upload_document")
         megadoc = await bot.send_document(
-            chat_id=update.chat.id,
+            chat_id=update.from_user.id,
             document=download_directory,
             thumb=thumb_image_path,
             caption=description,
             parse_mode="HTML",
-            reply_to_message_id=update.message_id,
+            reply_to_message_id=messageid,
             progress=progress_for_pyrogram,
             progress_args=(
                 Translation.UPLOAD_START,
