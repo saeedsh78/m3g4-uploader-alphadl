@@ -47,6 +47,7 @@ downlaoding_in_megacmd = False
 usermsg = None
 url = None
 messageid = None
+file_name = None
 
 @Client.on_callback_query()
 async def cb_data(bot, update):
@@ -54,6 +55,7 @@ async def cb_data(bot, update):
     global usermsg
     global url
     global messageid
+    global file_name
     fuser = update.from_user.id
     if check_blacklist(fuser):
         await update.reply_text("Sorry! You are Banned!")
@@ -89,6 +91,8 @@ async def cb_data(bot, update):
                     info_parts = linkinfo.split("|")
                     fsize = info_parts[0]
                     fname = info_parts[1]
+                    if file_name == None:
+                        file_name = info_parts[1]
                     logger.info(fsize)
                     logger.info(fname)
                     a=1
@@ -217,7 +221,7 @@ async def cb_data(bot, update):
                                                 text=Translation.UPLOAD_START,
                                                 message_id=usermsg.message_id
                                             )
-                                            await send_splitted_file(bot, update, tg_send_type, thumb_image_path, splited_file, tmp_directory_for_each_user, description, usermsg)
+                                            await send_splitted_file(bot, update, tg_send_type, thumb_image_path, splited_file, tmp_directory_for_each_user, description, usermsg, messageid)
                                     end_two = datetime.now()
                                     time_taken_for_upload = (end_two - end_one).seconds
                                     await bot.edit_message_text(
@@ -251,7 +255,7 @@ async def cb_data(bot, update):
                                     text=Translation.UPLOAD_START,
                                     message_id=usermsg.message_id
                                 )
-                                await send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg, messageid)
+                                await send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg, messageid,file_name)
                                 end_two = datetime.now()
                                 time_taken_for_upload = (end_two - end_one).seconds
                                 await bot.edit_message_text(
@@ -340,7 +344,14 @@ async def mega_dl(bot, update):
     global usermsg
     global url
     global messageid
-    url = update.text
+    global file_name
+    data_full = update.text
+    if "|" in data_full:
+        url_parts = data_full.split("|")
+        url = url_parts[0]
+        file_name = url_parts[1]
+    else:
+        url = update.text
     Buttons = [[
         InlineKeyboardButton("Video", callback_data='vid'),
         InlineKeyboardButton("File", callback_data='doc')
