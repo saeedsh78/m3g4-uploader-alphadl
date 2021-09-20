@@ -1,30 +1,15 @@
-# The code you are about to see below is a work of an absolute(100%) noob. 
-# Ok now go ahead you will see what I mean!
-
-# Solely coded by xmysteriousx
-
 import logging
-
-from pyrogram.methods import messages
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 import asyncio
-import json
 import math
-import subprocess
 import os
-import shutil
 import time
-from datetime import datetime
-from asyncio import get_running_loop
-
-from helpers.download_uplaod_helper import send_splitted_file, send_file, humanbytes
-from helpers.files_spliiting import split_files, split_video_files
-from .mega_logging import m
-
-from functools import partial
+from PIL import Image
+from hachoir.metadata import extractMetadata
+from hachoir.parser import createParser
 
 if bool(os.environ.get("WEBHOOK", False)):
     from sample_config import Config
@@ -33,334 +18,241 @@ else:
 
 from translation import Translation
 
-import pyrogram
-from pyrogram import Client, filters
 
-from pyrogram.errors import UserNotParticipant, UserBannedInChannel
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-logging.getLogger("pyrogram").setLevel(logging.WARNING)
-
-from database.blacklist import check_blacklist
-from database.userchats import add_chat
-    
-downlaoding_in_megacmd = False
-usermsg = None
-url = None
-messageid = None
-file_name = None
-
-@Client.on_callback_query()
-async def cb_data(bot, update):
-    global downlaoding_in_megacmd
-    global usermsg
-    global url
-    global messageid
-    global file_name
-    fuser = update.from_user.id
-    if check_blacklist(fuser):
-        await update.reply_text("Sorry! You are Banned!")
-        return
-    add_chat(fuser)
-    if "mega.nz" in url:
-        if ("folder" or "#F" or "#N") not in url:
-            await bot.edit_message_text(
-                chat_id=update.from_user.id,
-                text=f"""<b>Processing...⏳</b>""",
-                message_id=usermsg.message_id
-            )
-            description = ""
-            megalink = None
-            a = None
-            b = None
-            c = None
-            d = None
-            e = None
-            g = None
-            s = None
-            y = None
-            tg_send_type = None
-            error_text = f"""Sorry some error occured!
-
-    Make sure your link is <b>Valid (not expired or been removed)</b>
-
-    Make sure your link is <b>not password protected or encrypted or private</b>"""
-            try:
-                linkinfo = m.get_public_url_info(url)
-                logger.info(linkinfo)
-                if "|" in linkinfo:
-                    info_parts = linkinfo.split("|")
-                    fsize = info_parts[0]
-                    fname = info_parts[1]
-                    if file_name == None:
-                        file_name = info_parts[1]
-                    logger.info(fsize)
-                    logger.info(fname)
-                    a=1
-                if a == 1:
-                    tg_send_type=update.data
-                if ".mp4" in fname:
-                    description_parts = fname.split(".mp4")
-                    description = description_parts[0]
-                    logger.info(description)
-                elif ".mkv" in fname:
-                    description_parts = fname.split(".mkv")
-                    description = description_parts[0]
-                    logger.info(description)
-            except Exception as e:
-                logger.info(e)
-                await bot.edit_message_text(
-                    chat_id=update.from_user.id,
-                    text="Error: "+ str(e) + "\n\n" + error_text,
-                    message_id=usermsg.message_id
-                )
-                return
-            if a == 1:
-                try:
-                    max_file_size = 2040108421
-                    the_file_size = int(fsize)
-                    await bot.edit_message_text(
-                        chat_id=update.from_user.id,
-                        text="<b>Files detected</b> : " + fname + "\n" + "<b>Size</b> : " + humanbytes(the_file_size) + "\n" + "\n" + Translation.DOWNLOAD_START,
-                        message_id=usermsg.message_id
-                    )
-                    megalink = url
-                    if megalink is not None:
-                        megalink = megalink.strip()
-                    if update.from_user.id == int(Config.OWNER_ID):
-                        s=1
-                    elif update.from_user.id in Config.AUTH_USERS:
-                        s=1
-                    else:
-                        s=0
-                    if s == 1:
-                        admin_dir_name = str(time.time())
-                        tmp_directory_for_each_user = Config.ADMIN_LOCATION + "/" + str(update.from_user.id) + "/" + admin_dir_name
-                    else:
-                        tmp_directory_for_each_user = Config.DOWNLOAD_LOCATION + "/" + str(update.from_user.id)
-                    if not os.path.isdir(tmp_directory_for_each_user):
-                        os.makedirs(tmp_directory_for_each_user)
-                    download_directory = tmp_directory_for_each_user + "/" + fname
-                    splitted_files_directory = tmp_directory_for_each_user + "/" + str(fsize)
-                    thumb_image_path = Config.DOWNLOAD_LOCATION + \
-                      "/" + str(update.from_user.id) + ".jpg"
-                    cred_location = Config.CREDENTIALS_LOCATION + "/mega.ini"
-                    start = datetime.now()
-                    if downlaoding_in_megacmd:
-                        try:
-                            # Using megatools for downloading links because MEGAcmd doesn't support parallel downloads at once. (This method is also speed.)
-                            loop = get_running_loop()
-                            await loop.run_in_executor(None, partial(download_mega_docs, megalink, tmp_directory_for_each_user, cred_location, update, bot))
-                            d=1
-                        except Exception as e:
-                            logger.info(e)
-                            try:
-                                await bot.edit_message_text(
-                                    text="Error: "+ str(e),
-                                    chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id
-                                )
-                                shutil.rmtree(tmp_directory_for_each_user)
-                                return
-                            except Exception as e:
-                                logger.info(e)
-                                return
-                    else:
-                        try:
-                            downlaoding_in_megacmd = True
-                            # Using MEGAcmd for downloading links! (This is the speedest way.)
-                            loop = get_running_loop()
-                            await loop.run_in_executor(None, partial(download_mega_files, megalink, tmp_directory_for_each_user))
-                            d=1
-                            downlaoding_in_megacmd = False
-                        except Exception as e:
-                            logger.info(e)
-                            try:
-                                downlaoding_in_megacmd = False
-                                await bot.edit_message_text(
-                                    text="Error: "+ str(e),
-                                    chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id
-                                )
-                                shutil.rmtree(tmp_directory_for_each_user)
-                                return
-                            except Exception as e:
-                                logger.info(e)
-                                return
-                    if d == 1:
-                        file_size = os.stat(download_directory).st_size
-                        end_one = datetime.now()
-                        time_taken_for_download = (end_one -start).seconds
-                        if file_size > 2040108421:
-                            try:
-                                await bot.edit_message_text(
-                                    chat_id=update.from_user.id,
-                                    text="<b>Detected Size</b> : " + humanbytes(file_size) + "\n" + "\n" + "<i>Splitting files...</i>\n\n<code>The downloaded file is bigger than 2GB! But due to telegram API limits I can't upload files which are bigger than 2GB 🥺. So I will split the files and upload them to you. 😇</code>",
-                                    message_id=usermsg.message_id
-                                )
-                                splitting_size = 2040108421
-                                if not os.path.exists(splitted_files_directory):
-                                    os.makedirs(splitted_files_directory)
-                                if tg_send_type == "vid":
-                                    await split_video_files(download_directory, splitting_size, splitted_files_directory, fname)
-                                    splitted_in_megadl = 1
-                                else:
-                                    loop = get_running_loop()
-                                    await loop.run_in_executor(None, partial(split_files, download_directory, splitting_size, splitted_files_directory))
-                                    splitted_in_megadl = 1
-                                if splitted_in_megadl == 1:
-                                    for root, dirs, files in os.walk(splitted_files_directory):
-                                        for filename in files:
-                                            logger.info(filename)
-                                            splited_file_name = filename
-                                            description = splited_file_name
-                                            splited_file = splitted_files_directory + "/" + splited_file_name
-                                            if filename == "fs_manifest.csv":
-                                                continue
-                                            await bot.edit_message_text(
-                                                chat_id=update.from_user.id,
-                                                text=Translation.UPLOAD_START,
-                                                message_id=usermsg.message_id
-                                            )
-                                            await send_splitted_file(bot, update, tg_send_type, thumb_image_path, splited_file, tmp_directory_for_each_user, description, usermsg, messageid)
-                                    end_two = datetime.now()
-                                    time_taken_for_upload = (end_two - end_one).seconds
-                                    await bot.edit_message_text(
-                                        text=Translation.AFTER_SUCCESSFUL_UPLOAD_MSG_WITH_TS.format(time_taken_for_download, time_taken_for_upload),
-                                        chat_id=update.from_user.id,
-                                        message_id=usermsg.message_id,
-                                        disable_web_page_preview=True
-                                    )
-                                    try:
-                                        shutil.rmtree(tmp_directory_for_each_user)
-                                        return
-                                    except Exception as e:
-                                        logger.info(e)
-                                        return
-                            except Exception as e:
-                                await bot.edit_message_text(
-                                    text="Error: "+ str(e),
-                                    chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id
-                                )
-                                try:
-                                    shutil.rmtree(tmp_directory_for_each_user)
-                                    return
-                                except Exception as e:
-                                    logger.info(e)
-                                    return
-                        else:
-                            try:
-                                await bot.edit_message_text(
-                                    chat_id=update.from_user.id,
-                                    text=Translation.UPLOAD_START,
-                                    message_id=usermsg.message_id
-                                )
-                                await send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg, messageid,file_name)
-                                end_two = datetime.now()
-                                time_taken_for_upload = (end_two - end_one).seconds
-                                await bot.edit_message_text(
-                                    text=Translation.AFTER_SUCCESSFUL_UPLOAD_MSG_WITH_TS.format(time_taken_for_download, time_taken_for_upload),
-                                    chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id,
-                                    disable_web_page_preview=True
-                                )
-                                try:
-                                    shutil.rmtree(tmp_directory_for_each_user)
-                                    return
-                                except Exception as e:
-                                    logger.info(e)
-                                    return
-                            except Exception as e:
-                                logger.info(e)
-                                await bot.edit_message_text(
-                                    text="Error: "+ str(e),
-                                    chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id
-                                )
-                                try:
-                                    shutil.rmtree(tmp_directory_for_each_user)
-                                    return
-                                except Exception as e:
-                                    logger.info(e)
-                                    return
-                except Exception as e:
-                    logger.info(e)
-                    await bot.edit_message_text(
-                        text="Error: "+ str(e),
-                        chat_id=update.from_user.id,
-                        message_id=usermsg.message_id
-                    )
-                    try:
-                        shutil.rmtree(tmp_directory_for_each_user)
-                        return
-                    except Exception as e:
-                        logger.info(e)
-                        return
+async def send_splitted_file(bot, update, tg_send_type, thumb_image_path, splited_file, tmp_directory_for_each_user, description, usermsg, messageid):
+    width = 0
+    height = 0
+    duration = 0
+    if tg_send_type != "doc":
+        metadata = extractMetadata(createParser(splited_file))
+        if metadata is not None:
+            if metadata.has("duration"):
+                duration = metadata.get('duration').seconds
+    if os.path.exists(thumb_image_path):
+        width = 0
+        height = 0
+        metadata = extractMetadata(createParser(thumb_image_path))
+        if metadata.has("width"):
+            width = metadata.get("width")
+        if metadata.has("height"):
+            height = metadata.get("height")
+        Image.open(thumb_image_path).convert(
+            "RGB").save(thumb_image_path)
+        img = Image.open(thumb_image_path)
+        if tg_send_type == "doc":
+            img.resize((320, height))
         else:
-            await bot.edit_message_text(
-                chat_id=update.from_user.id,
-                text=f"""Sorry! Folder links are not supported!""",
-                message_id=usermsg.message_id
-            )
-            return
+            img.resize((90, height))
+        img = Image.open(thumb_image_path)
     else:
-        await bot.edit_message_text(
-            chat_id=update.from_user.id,
-            text=f"""<b>I am a mega.nz link downloader bot! 😑</b>\n\nThis not a mega.nz link. 😡""",
-            message_id=usermsg.message_id
+        thumb_image_path = await take_screen_shot(
+            splited_file,
+            tmp_directory_for_each_user,
+            (duration / 2)
         )
-        return
-
-def download_mega_files(megalink, tmp_directory_for_each_user):
-    try:
-        global downlaoding_in_megacmd
-        process = subprocess.run(["mega-get", megalink, tmp_directory_for_each_user]) # If you provided a pro/business mega.nz account email and account in the config vars there will not be any quota limits!
-    except Exception as e:
-        downlaoding_in_megacmd = False
-        logger.info(e)
-
-def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, update, bot):
-    global usermsg
-    try:
-        if os.path.exists(cred_location):
-            try:
-                process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user, "--config", cred_location]) # If mega.nz credentials are provided your link will be downloaded from megatools using quota in your account!. Helps to avoid quota limits if you use a pro/business mega account!
-            except Exception as e:
-                logger.info(e)
-                bot.edit_message_text(
-                        chat_id=update.from_user.id,
-                        text = f"Error : `{e}` occured!\n\n<b>.Maybe because there is some error in your `mega.ini` file! Please send your file, exatly as mentioned in the readme 👉 https://github.com/XMYSTERlOUSX/mega-link-downloader-bot/blob/main/README.md</b>\n\n<i>Downloading your file now without logging in to your account...</i>",
-                        disable_web_page_preview=True,
-                        message_id=usermsg.message_id
-                        )
-                process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user])
-        else:
-            process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user])
-    except Exception as e:
-        logger.info(e)
-
-@Client.on_message(filters.regex(pattern=".*http.*"))
-async def mega_dl(bot, update):
-    global usermsg
-    global url
-    global messageid
-    global file_name
-    data_full = update.text
-    if "|" in data_full:
-        url_parts = data_full.split("|")
-        url = url_parts[0]
-        file_name = url_parts[1]
-    else:
-        url = update.text
-    Buttons = [[
-        InlineKeyboardButton("Video", callback_data='vid'),
-        InlineKeyboardButton("File", callback_data='doc')
-    ]]
-    reply_markup = InlineKeyboardMarkup(Buttons)
-    usermsg = await bot.send_message(
-                chat_id=update.chat.id,
-                text=f"""<b>Select Method Send</b>""",
-                reply_markup=reply_markup,
-                reply_to_message_id=update.message_id
+    start_time = time.time()
+    if tg_send_type == "vid":
+        await update.reply_chat_action("upload_video")
+        megavid = await bot.send_video(
+            chat_id=update.from_user.id,
+            video=splited_file,
+            caption=description,
+            parse_mode="HTML",
+            duration=duration,
+            width= 300,
+            height= 200,
+            supports_streaming=True,
+            thumb=thumb_image_path,
+            reply_to_message_id=messageid,
+            progress=progress_for_pyrogram,
+            progress_args=(
+                Translation.UPLOAD_START,
+                usermsg,
+                start_time
             )
-    messageid = update.message_id
+        )
+    elif tg_send_type == "doc":
+        await update.reply_chat_action("upload_document")
+        megadoc = await bot.send_document(
+            chat_id=update.from_user.id,
+            document=splited_file,
+            thumb=thumb_image_path,
+            caption=description,
+            parse_mode="HTML",
+            reply_to_message_id=messageid,
+            progress=progress_for_pyrogram,
+            progress_args=(
+                Translation.UPLOAD_START,
+                usermsg,
+                start_time
+            )
+        )
+        
+async def send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg, messageid,fname):
+    width = 0
+    height = 0
+    duration = 0
+    if tg_send_type != "doc":
+        metadata = extractMetadata(createParser(download_directory))
+        if metadata is not None:
+            if metadata.has("duration"):
+                duration = metadata.get('duration').seconds
+    if os.path.exists(thumb_image_path):
+      width = 0
+      height = 0
+      metadata = extractMetadata(createParser(thumb_image_path))
+      if metadata.has("width"):
+          width = metadata.get("width")
+      if metadata.has("height"):
+          height = metadata.get("height")
+      Image.open(thumb_image_path).convert(
+          "RGB").save(thumb_image_path)
+      img = Image.open(thumb_image_path)
+      if tg_send_type == "doc":
+          img.resize((320, height))
+      else:
+          img.resize((90, height))
+      img = Image.open(thumb_image_path)
+    else:
+        thumb_image_path = await take_screen_shot(
+            download_directory,
+            tmp_directory_for_each_user,
+            (duration / 2)
+        )
+    start_time = time.time()
+    if tg_send_type == "vid":
+        await update.send_chat_action(chat_id = update.from_user.id, action = "upload_video")
+        megavid = await bot.send_video(
+            chat_id=update.from_user.id,
+            video=download_directory,
+            file_name = fname,
+            caption=description,
+            parse_mode="HTML",
+            duration=duration,
+            width= 300,
+            height= 200,
+            supports_streaming=True,
+            thumb=thumb_image_path,
+            reply_to_message_id=messageid,
+            progress=progress_for_pyrogram,
+            progress_args=(
+                Translation.UPLOAD_START,
+                usermsg,
+                start_time
+            )
+        )
+    elif tg_send_type == "doc":
+        await update.send_chat_action(chat_id = update.from_user.id, action = "upload_document")
+        megadoc = await bot.send_document(
+            chat_id=update.from_user.id,
+            document=download_directory,
+            file_name = fname,
+            thumb=thumb_image_path,
+            caption=description,
+            parse_mode="HTML",
+            reply_to_message_id=messageid,
+            progress=progress_for_pyrogram,
+            progress_args=(
+                Translation.UPLOAD_START,
+                usermsg,
+                start_time
+            )
+        )
+
+async def progress_for_pyrogram(
+    current,
+    total,
+    ud_type,
+    message,
+    start
+):
+    now = time.time()
+    diff = now - start
+    if round(diff % 10.00) == 0 or current == total:
+        # if round(current / total * 100, 0) % 5 == 0:
+        percentage = current * 100 / total
+        speed = current / diff
+        elapsed_time = round(diff) * 1000
+        time_to_completion = round((total - current) / speed) * 1000
+        estimated_total_time = elapsed_time + time_to_completion
+        bot_name = Config.Bot_username
+        elapsed_time = TimeFormatter(milliseconds=elapsed_time)
+        estimated_total_time = TimeFormatter(milliseconds=estimated_total_time)
+
+        progress = "[{0}{1}] \n\n○ <b>Percentage ⚡️ :</b> {2}%\n\n○ <b>Finished ✅ :</b> ".format(
+            ''.join(["●" for i in range(math.floor(percentage / 5))]),
+            ''.join(["○" for i in range(20 - math.floor(percentage / 5))]),
+            round(percentage, 2))
+
+        tmp = progress + "{0} of {1}\n\n○ <b>Speed 🚀 :</b> {2}/s\n\n○ <b>Time left 🌝 :</b> {3}\n\n<b>uploading by {4}</b>\n".format(
+            humanbytes(current),
+            humanbytes(total),
+            humanbytes(speed),
+            # elapsed_time if elapsed_time != '' else "0 s",
+            estimated_total_time if estimated_total_time != '' else "0 s",
+            bot_name
+        )
+        try:
+            await message.edit(
+                text="{}\n {}".format(
+                    ud_type,
+                    tmp
+                )
+            )
+        except:
+            pass
+
+def humanbytes(size):
+    # https://stackoverflow.com/a/49361727/4723940
+    # 2**10 = 1024
+    if not size:
+        return ""
+    power = 2**10
+    n = 0
+    Dic_powerN = {0: ' ', 1: 'Ki', 2: 'Mi', 3: 'Gi', 4: 'Ti'}
+    while size > power:
+        size /= power
+        n += 1
+    return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
+
+def TimeFormatter(milliseconds: int) -> str:
+    seconds, milliseconds = divmod(int(milliseconds), 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    tmp = ((str(days) + "d, ") if days else "") + \
+        ((str(hours) + "h, ") if hours else "") + \
+        ((str(minutes) + "m, ") if minutes else "") + \
+        ((str(seconds) + "s, ") if seconds else "") + \
+        ((str(milliseconds) + "ms, ") if milliseconds else "")
+    return tmp[:-2]
+  
+async def take_screen_shot(video_file, output_directory, ttl):
+    # https://stackoverflow.com/a/13891070/4723940
+    out_put_file_name = output_directory + \
+        "/" + str(time.time()) + ".jpg"
+    file_genertor_command = [
+        "ffmpeg",
+        "-ss",
+        str(ttl),
+        "-i",
+        video_file,
+        "-vframes",
+        "1",
+        out_put_file_name
+    ]
+    # width = "90"
+    process = await asyncio.create_subprocess_exec(
+        *file_genertor_command,
+        # stdout must a pipe to be accessible as process.stdout
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    # Wait for the subprocess to finish
+    stdout, stderr = await process.communicate()
+    e_response = stderr.decode().strip()
+    t_response = stdout.decode().strip()
+    if os.path.lexists(out_put_file_name):
+        return out_put_file_name
+    else:
+        return None
