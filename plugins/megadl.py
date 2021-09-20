@@ -47,6 +47,7 @@ downlaoding_in_megacmd = False
 usermsg = None
 url = None
 messageid = None
+file_name = None
 
 @Client.on_callback_query()
 async def cb_data(bot, update):
@@ -54,6 +55,7 @@ async def cb_data(bot, update):
     global usermsg
     global url
     global messageid
+    global file_name
     fuser = update.from_user.id
     if check_blacklist(fuser):
         await update.reply_text("Sorry! You are Banned!")
@@ -88,7 +90,10 @@ async def cb_data(bot, update):
                 if "|" in linkinfo:
                     info_parts = linkinfo.split("|")
                     fsize = info_parts[0]
-                    fname = info_parts[1]
+                    if file_name == None:
+                        fname = info_parts[1]
+                    else:
+                        fname = file_name
                     logger.info(fsize)
                     logger.info(fname)
                     a=1
@@ -340,7 +345,14 @@ async def mega_dl(bot, update):
     global usermsg
     global url
     global messageid
-    url = update.text
+    global file_name
+    data_full = update.text
+    if "|" in data_full:
+        url_parts = data_full.split("|")
+        url = url_parts[0]
+        file_name = url_parts[1]
+    else:
+        url = update.text
     Buttons = [[
         InlineKeyboardButton("Video", callback_data='vid'),
         InlineKeyboardButton("File", callback_data='doc')
