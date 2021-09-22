@@ -46,8 +46,11 @@ from database.userchats import add_chat
 downlaoding_in_megacmd = False
 
 
-async def cb_data(bot, update, messageid, usermsg, file_name, url):
+async def cb_data(bot, update):
+    cdata = update.data
+    tg_send_type, file_name = cdata.split('|')
     global downlaoding_in_megacmd
+    url = update.message.reply_to_message.text
     fuser = update.from_user.id
     if check_blacklist(fuser):
         await update.reply_text("Sorry! You are Banned!")
@@ -58,7 +61,7 @@ async def cb_data(bot, update, messageid, usermsg, file_name, url):
             await bot.edit_message_text(
                 chat_id=update.from_user.id,
                 text=f"""<b>Processing...⏳</b>""",
-                message_id=usermsg.message_id
+                message_id=update.message.message_id
             )
             description = ""
             megalink = None
@@ -312,7 +315,6 @@ def download_mega_files(megalink, tmp_directory_for_each_user):
         logger.info(e)
 
 def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, update, bot):
-    global usermsg
     try:
         if os.path.exists(cred_location):
             try:
@@ -342,8 +344,8 @@ async def mega_dl(bot, update):
         url = update.text
         file_name = None
     Buttons = [[
-        InlineKeyboardButton("Video", callback_data='vid'),
-        InlineKeyboardButton("File", callback_data='doc')
+        InlineKeyboardButton("Video", callback_data=f'vid|{file_name}'),
+        InlineKeyboardButton("File", callback_data=f'doc|{file_name}')
     ]]
     reply_markup = InlineKeyboardMarkup(Buttons)
     usermsg = await bot.send_message(
@@ -352,4 +354,3 @@ async def mega_dl(bot, update):
                 reply_markup=reply_markup,
                 reply_to_message_id=update.message_id
             )
-    megadl = cb_data(bot, update, update.message_id, usermsg, file_name, url)
