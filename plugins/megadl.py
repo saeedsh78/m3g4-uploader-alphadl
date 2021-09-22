@@ -349,8 +349,8 @@ async def mega_dl(bot, update):
         url = update.text
         file_name = None
     Buttons = [[
-        InlineKeyboardButton("Video", callback_data=f'vid|{file_name}|{update.message_id}'),
-        InlineKeyboardButton("File", callback_data=f'doc|{file_name}|{update.message_id}')
+        InlineKeyboardButton("Video", callback_data=(f'vid|{file_name}|{update.message_id}').encode('utf8')),
+        InlineKeyboardButton("File", callback_data=(f'doc|{file_name}|{update.message_id}').encode('utf8'))
     ]]
     reply_markup = InlineKeyboardMarkup(Buttons)
     usermsg = await bot.send_message(
