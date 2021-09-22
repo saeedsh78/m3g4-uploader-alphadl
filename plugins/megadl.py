@@ -60,7 +60,7 @@ async def cb_data(bot, update):
         if ("folder" or "#F" or "#N") not in url:
             await bot.delete_messages(
                 chat_id=update.message.chat.id,
-                message_ids=update.message.message_id,
+                message_ids=bot.message.message_id,
                 revoke=True
             )
             usermsg = await bot.send_message(
@@ -355,7 +355,7 @@ async def mega_dl(bot, update):
         file_name = None
     Buttons = [[
         InlineKeyboardButton("Video", callback_data=f'vid|{file_name}|{update.message_id}'),
-        InlineKeyboardButton("File", callback_data=f'doc|{file_name}|{update.message_id}')
+        InlineKeyboardButton("File", callback_data=f'doc|{file_name}|{update.message_id}|')
     ]]
     reply_markup = InlineKeyboardMarkup(Buttons)
     usermsg = await bot.send_message(
