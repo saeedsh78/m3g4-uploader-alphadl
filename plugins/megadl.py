@@ -44,18 +44,10 @@ from database.blacklist import check_blacklist
 from database.userchats import add_chat
     
 downlaoding_in_megacmd = False
-usermsg = None
-url = None
-messageid = None
-file_name = None
 
-@Client.on_callback_query()
-async def cb_data(bot, update):
+
+async def cb_data(bot, update, messageid, usermsg, file_name, url):
     global downlaoding_in_megacmd
-    global usermsg
-    global url
-    global messageid
-    global file_name
     fuser = update.from_user.id
     if check_blacklist(fuser):
         await update.reply_text("Sorry! You are Banned!")
@@ -341,10 +333,6 @@ def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, upd
 
 @Client.on_message(filters.regex(pattern=".*http.*"))
 async def mega_dl(bot, update):
-    global usermsg
-    global url
-    global messageid
-    global file_name
     data_full = update.text
     if "|" in data_full:
         url_parts = data_full.split("|")
@@ -352,6 +340,7 @@ async def mega_dl(bot, update):
         file_name = url_parts[1]
     else:
         url = update.text
+        file_name = None
     Buttons = [[
         InlineKeyboardButton("Video", callback_data='vid'),
         InlineKeyboardButton("File", callback_data='doc')
@@ -363,4 +352,4 @@ async def mega_dl(bot, update):
                 reply_markup=reply_markup,
                 reply_to_message_id=update.message_id
             )
-    messageid = update.message_id
+    megadl = cb_data(bot, update, update.message_id, usermsg, file_name, url)
