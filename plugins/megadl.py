@@ -58,6 +58,7 @@ async def cb_data(bot, update):
     add_chat(fuser)
     if "mega.nz" in url:
         if ("folder" or "#F" or "#N") not in url:
+            print(bot)
             await bot.delete_messages(
                 chat_id=update.message.chat.id,
                 message_ids=bot.message.message_id,
