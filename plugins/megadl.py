@@ -85,7 +85,7 @@ async def cb_data(bot, update):
                     info_parts = linkinfo.split("|")
                     fsize = info_parts[0]
                     fname = info_parts[1]
-                    if file_name == None:
+                    if file_name == 'None':
                         file_name = info_parts[1]
                     logger.info(fsize)
                     logger.info(fname)
