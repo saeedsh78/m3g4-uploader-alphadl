@@ -106,7 +106,7 @@ async def cb_data(bot, update):
                 await bot.edit_message_text(
                     chat_id=update.from_user.id,
                     text="Error: "+ str(e) + "\n\n" + error_text,
-                    message_id=usermsg.message_id
+                    message_id=update.message.message_id
                 )
                 return
             if a == 1:
@@ -116,7 +116,7 @@ async def cb_data(bot, update):
                     await bot.edit_message_text(
                         chat_id=update.from_user.id,
                         text="<b>Files detected</b> : " + fname + "\n" + "<b>Size</b> : " + humanbytes(the_file_size) + "\n" + "\n" + Translation.DOWNLOAD_START,
-                        message_id=usermsg.message_id
+                        message_id=update.message.message_id
                     )
                     megalink = url
                     if megalink is not None:
@@ -152,7 +152,7 @@ async def cb_data(bot, update):
                                 await bot.edit_message_text(
                                     text="Error: "+ str(e),
                                     chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id
+                                    message_id=update.message.message_id
                                 )
                                 shutil.rmtree(tmp_directory_for_each_user)
                                 return
@@ -174,7 +174,7 @@ async def cb_data(bot, update):
                                 await bot.edit_message_text(
                                     text="Error: "+ str(e),
                                     chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id
+                                    message_id=update.message.message_id
                                 )
                                 shutil.rmtree(tmp_directory_for_each_user)
                                 return
@@ -190,7 +190,7 @@ async def cb_data(bot, update):
                                 await bot.edit_message_text(
                                     chat_id=update.from_user.id,
                                     text="<b>Detected Size</b> : " + humanbytes(file_size) + "\n" + "\n" + "<i>Splitting files...</i>\n\n<code>The downloaded file is bigger than 2GB! But due to telegram API limits I can't upload files which are bigger than 2GB 🥺. So I will split the files and upload them to you. 😇</code>",
-                                    message_id=usermsg.message_id
+                                    message_id=update.message.message_id
                                 )
                                 splitting_size = 2040108421
                                 if not os.path.exists(splitted_files_directory):
@@ -214,7 +214,7 @@ async def cb_data(bot, update):
                                             await bot.edit_message_text(
                                                 chat_id=update.from_user.id,
                                                 text=Translation.UPLOAD_START,
-                                                message_id=usermsg.message_id
+                                                message_id=update.message.message_id
                                             )
                                             await send_splitted_file(bot, update, tg_send_type, thumb_image_path, splited_file, tmp_directory_for_each_user, description, usermsg, messageid)
                                     end_two = datetime.now()
@@ -222,7 +222,7 @@ async def cb_data(bot, update):
                                     await bot.edit_message_text(
                                         text=Translation.AFTER_SUCCESSFUL_UPLOAD_MSG_WITH_TS.format(time_taken_for_download, time_taken_for_upload),
                                         chat_id=update.from_user.id,
-                                        message_id=usermsg.message_id,
+                                        message_id=update.message.message_id,
                                         disable_web_page_preview=True
                                     )
                                     try:
@@ -235,7 +235,7 @@ async def cb_data(bot, update):
                                 await bot.edit_message_text(
                                     text="Error: "+ str(e),
                                     chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id
+                                    message_id=update.message.message_id
                                 )
                                 try:
                                     shutil.rmtree(tmp_directory_for_each_user)
@@ -248,7 +248,7 @@ async def cb_data(bot, update):
                                 await bot.edit_message_text(
                                     chat_id=update.from_user.id,
                                     text=Translation.UPLOAD_START,
-                                    message_id=usermsg.message_id
+                                    message_id=update.message.message_id
                                 )
                                 await send_file(bot, update, tg_send_type, thumb_image_path, download_directory, tmp_directory_for_each_user, description, usermsg, messageid,file_name)
                                 end_two = datetime.now()
@@ -256,7 +256,7 @@ async def cb_data(bot, update):
                                 await bot.edit_message_text(
                                     text=Translation.AFTER_SUCCESSFUL_UPLOAD_MSG_WITH_TS.format(time_taken_for_download, time_taken_for_upload),
                                     chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id,
+                                    message_id=update.message.message_id,
                                     disable_web_page_preview=True
                                 )
                                 try:
@@ -270,7 +270,7 @@ async def cb_data(bot, update):
                                 await bot.edit_message_text(
                                     text="Error: "+ str(e),
                                     chat_id=update.from_user.id,
-                                    message_id=usermsg.message_id
+                                    message_id=update.message.message_id
                                 )
                                 try:
                                     shutil.rmtree(tmp_directory_for_each_user)
@@ -283,7 +283,7 @@ async def cb_data(bot, update):
                     await bot.edit_message_text(
                         text="Error: "+ str(e),
                         chat_id=update.from_user.id,
-                        message_id=usermsg.message_id
+                        message_id=update.message.message_id
                     )
                     try:
                         shutil.rmtree(tmp_directory_for_each_user)
