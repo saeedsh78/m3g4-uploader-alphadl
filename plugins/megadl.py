@@ -66,7 +66,7 @@ async def cb_data(bot, update):
             usermsg = await bot.send_message(
                 chat_id=update.from_user.id,
                 text=f"""<b>Processing...⏳</b>""",
-                reply_to_message_id=update.message.message_id
+                reply_to_message_id=messageid
             )
             description = ""
             megalink = None
