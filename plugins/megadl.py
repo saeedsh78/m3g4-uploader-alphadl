@@ -58,10 +58,10 @@ async def cb_data(bot, update):
     add_chat(fuser)
     if "mega.nz" in url:
         if ("folder" or "#F" or "#N") not in url:
-            usermsg = await bot.send_message(
+            usermsg = await bot.edit_message_text(
                 chat_id=update.from_user.id,
                 text=f"""<b>Processing...⏳</b>""",
-                reply_to_message_id=messageid
+                message_id = update.message.message_id
             )
             description = ""
             megalink = None
