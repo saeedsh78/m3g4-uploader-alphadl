@@ -333,6 +333,11 @@ def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, upd
     except Exception as e:
         logger.info(e)
 
+
+@Client.on_callback_query()
+async def button(bot, update):
+    await cb_data(bot, update)
+
 @Client.on_message(filters.regex(pattern=".*http.*"))
 async def mega_dl(bot, update):
     data_full = update.text
