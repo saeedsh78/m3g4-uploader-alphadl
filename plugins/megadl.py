@@ -48,7 +48,7 @@ downlaoding_in_megacmd = False
 
 async def cb_data(bot, update):
     cdata = update.data
-    tg_send_type, file_name = cdata.split('|')
+    tg_send_type, file_name, messageid = cdata.split('|')
     global downlaoding_in_megacmd
     url = update.message.reply_to_message.text
     fuser = update.from_user.id
@@ -58,7 +58,7 @@ async def cb_data(bot, update):
     add_chat(fuser)
     if "mega.nz" in url:
         if ("folder" or "#F" or "#N") not in url:
-            await bot.edit_message_text(
+            usermsg = await bot.edit_message_text(
                 chat_id=update.from_user.id,
                 text=f"""<b>Processing...⏳</b>""",
                 message_id=update.message.message_id
@@ -295,14 +295,14 @@ async def cb_data(bot, update):
             await bot.edit_message_text(
                 chat_id=update.from_user.id,
                 text=f"""Sorry! Folder links are not supported!""",
-                message_id=usermsg.message_id
+                message_id=update.message.message_id
             )
             return
     else:
         await bot.edit_message_text(
             chat_id=update.from_user.id,
             text=f"""<b>I am a mega.nz link downloader bot! 😑</b>\n\nThis not a mega.nz link. 😡""",
-            message_id=usermsg.message_id
+            message_id=update.message.message_id
         )
         return
 
@@ -325,7 +325,7 @@ def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, upd
                         chat_id=update.from_user.id,
                         text = f"Error : `{e}` occured!\n\n<b>.Maybe because there is some error in your `mega.ini` file! Please send your file, exatly as mentioned in the readme 👉 https://github.com/XMYSTERlOUSX/mega-link-downloader-bot/blob/main/README.md</b>\n\n<i>Downloading your file now without logging in to your account...</i>",
                         disable_web_page_preview=True,
-                        message_id=usermsg.message_id
+                        message_id=update.message.message_id
                         )
                 process = subprocess.run(["megadl", megalink, "--path", tmp_directory_for_each_user])
         else:
@@ -349,8 +349,8 @@ async def mega_dl(bot, update):
         url = update.text
         file_name = None
     Buttons = [[
-        InlineKeyboardButton("Video", callback_data=f'vid|{file_name}'),
-        InlineKeyboardButton("File", callback_data=f'doc|{file_name}')
+        InlineKeyboardButton("Video", callback_data=f'vid|{file_name}|{update.message_id}'),
+        InlineKeyboardButton("File", callback_data=f'doc|{file_name}|{update.message_id}')
     ]]
     reply_markup = InlineKeyboardMarkup(Buttons)
     usermsg = await bot.send_message(
