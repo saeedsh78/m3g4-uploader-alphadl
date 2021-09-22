@@ -1,4 +1,3 @@
-#alpha
 import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -131,7 +130,7 @@ async def send_file(bot, update, tg_send_type, thumb_image_path, download_direct
             height= 200,
             supports_streaming=True,
             thumb=thumb_image_path,
-            reply_to_message_id=messageid,
+            reply_to_message_id=update.message.message_id,
             progress=progress_for_pyrogram,
             progress_args=(
                 Translation.UPLOAD_START,
@@ -147,7 +146,7 @@ async def send_file(bot, update, tg_send_type, thumb_image_path, download_direct
             thumb=thumb_image_path,
             caption=fname,
             parse_mode="HTML",
-            reply_to_message_id=messageid,
+            reply_to_message_id=update.message.message_id,
             progress=progress_for_pyrogram,
             progress_args=(
                 Translation.UPLOAD_START,
