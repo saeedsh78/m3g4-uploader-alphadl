@@ -48,7 +48,7 @@ downlaoding_in_megacmd = False
 
 async def cb_data(bot, update):
     cdata = update.data
-    tg_send_type, file_name, messageid = cdata.split('|')
+    tgsend_type, file_name, messageid = cdata.split('|')
     global downlaoding_in_megacmd
     url = update.message.reply_to_message.text
     fuser = update.from_user.id
@@ -73,7 +73,6 @@ async def cb_data(bot, update):
             g = None
             s = None
             y = None
-            tg_send_type = None
             error_text = f"""Sorry some error occured!
 
     Make sure your link is <b>Valid (not expired or been removed)</b>
@@ -92,7 +91,7 @@ async def cb_data(bot, update):
                     logger.info(fname)
                     a=1
                 if a == 1:
-                    tg_send_type=update.data
+                    tg_send_type=tgsend_type
                 if ".mp4" in fname:
                     description_parts = fname.split(".mp4")
                     description = description_parts[0]
