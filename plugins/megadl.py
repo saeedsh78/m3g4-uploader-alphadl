@@ -322,7 +322,7 @@ def download_mega_docs(megalink, tmp_directory_for_each_user, cred_location, upd
                 logger.info(e)
                 bot.edit_message_text(
                         chat_id=update.from_user.id,
-                        text = f"Error : `{e}` occured!\n\n<b>.Maybe because there is some error in your `mega.ini` file! Please send your file, exatly as mentioned in the readme 👉 https://github.com/XMYSTERlOUSX/mega-link-downloader-bot/blob/main/README.md</b>\n\n<i>Downloading your file now without logging in to your account...</i>",
+                        text = f"Error : `{e}` <i>Downloading your file now without logging in to your account...</i>",
                         disable_web_page_preview=True,
                         message_id=update.message.message_id
                         )
