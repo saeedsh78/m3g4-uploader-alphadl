@@ -24,7 +24,7 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 from database.blacklist import check_blacklist
 from database.userchats import add_chat
 
-@Client.on_message(filters.photo)
+@Client.on_message(filters.photo & filters.user(Config.OWNER_ID))
 async def save_photo(bot, update):
     fuser = update.from_user.id
     if check_blacklist(fuser):
@@ -55,7 +55,7 @@ async def save_photo(bot, update):
         )
 
         
-@Client.on_message(filters.command("deletethumbnail"))
+@Client.on_message(filters.command("deletethumbnail") & filters.user(Config.OWNER_ID))
 async def delete_thumbnail(bot, update):
     download_location = Config.DOWNLOAD_LOCATION + "/" + str(update.from_user.id)
     try:
