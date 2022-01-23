@@ -40,7 +40,7 @@ else:
     m = mega.login() # Here we make an anonymous, temporary account for mega.py!
     speedlimit_in_megacmd = subprocess.run(["mega-speedlimit", speed])
 
-@Client.on_message(filters.command("mega_ini") & filters.user(int(Config.OWNER_ID)))
+@Client.on_message(filters.command("mega_ini") & filters.user(Config.OWNER_ID))
 async def log_to_megatools(client, message):
     fuser = message.from_user.id
     if check_blacklist(fuser):
