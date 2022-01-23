@@ -10,7 +10,7 @@ else:
     from config import Config
   
 
-@Client.on_message(filters.command("black") & filters.user(int(Config.OWNER_ID)))
+@Client.on_message(filters.command("black") & filters.user(Config.OWNER_ID))
 async def black_user(_, message):
     try:
         bl = int(message.text.split(" ", maxsplit=1)[1])
@@ -20,7 +20,7 @@ async def black_user(_, message):
     await message.reply_text(f"Blacklisted {bl} !")
 
 
-@Client.on_message(filters.command("unblack") & filters.user(int(Config.OWNER_ID)))
+@Client.on_message(filters.command("unblack") & filters.user(Config.OWNER_ID))
 async def unblack_user(_, message):
     try:
         bl = int(message.text.split(" ", maxsplit=1)[1])
@@ -30,7 +30,7 @@ async def unblack_user(_, message):
     await message.reply_text(te)
 
 
-@Client.on_message(filters.command("listblack") & filters.user(int(Config.OWNER_ID)))
+@Client.on_message(filters.command("listblack") & filters.user(Config.OWNER_ID))
 async def liblack(_, message):
     m = await message.reply_text("`...`")
     al = get_blacklisted()
