@@ -28,7 +28,7 @@ REPLY_MARKUP = InlineKeyboardMarkup(
     ]
 )
 
-@Client.on_message(filters.command("help"))
+@Client.on_message(filters.command("help") & filters.user(Config.OWNER_ID))
 async def help_user(bot, update):
     fuser = update.from_user.id
     if check_blacklist(fuser):
@@ -44,7 +44,7 @@ async def help_user(bot, update):
         reply_to_message_id=update.message_id
     )
 
-@Client.on_message(filters.command("start"))
+@Client.on_message(filters.command("start") & filters.user(Config.OWNER_ID))
 async def start(bot, update):
     fuser = update.from_user.id
     if check_blacklist(fuser):
