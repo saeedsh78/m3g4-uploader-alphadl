@@ -8,7 +8,7 @@ if bool(os.environ.get("WEBHOOK", False)):
 else:
     from config import Config
 
-@Client.on_message(filters.command("broadcast") & filters.user(int(Config.OWNER_ID)))
+@Client.on_message(filters.command("broadcast") & filters.user(Config.OWNER_ID))
 async def bcast(client, message):
     if message.reply_to_message:
         MSG = message.reply_to_message
