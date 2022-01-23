@@ -19,7 +19,7 @@ class Config(object):
     Bot_username = os.environ.get("Bot_username", "") # Your bot's telegram username (must enter with '@' in the front of the username)
     #If deploying on vps edit the above value as example := Bot_username = "Your-Bot_username-inside-inverted-commas."
     
-    OWNER_ID = set(int(x) for x in os.environ.get("OWNER_ID", "").split()) # Your(owner's) telegram id
+    OWNER_ID = set(int(x) for x in os.environ.get("OWNER_ID", "").split()) # Your(owner's) telegram id user
     #If deploying on vps edit the above value as example := OWNER_ID = Your-telegram id-without-inverted-commas
     
     REDIS_URI = os.environ.get("REDIS_URI", None) # Get This Value from http://redislabs.com/try-free (If you don't know how to obtain the a video tutorial is available here:- https://t.me/botzupdate/5)
