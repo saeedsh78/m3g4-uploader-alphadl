@@ -120,7 +120,7 @@ async def cb_data(bot, update):
                     megalink = url
                     if megalink is not None:
                         megalink = megalink.strip()
-                    if update.from_user.id == int(Config.OWNER_ID):
+                    if update.from_user.id in Config.OWNER_ID:
                         s=1
                     elif update.from_user.id in Config.AUTH_USERS:
                         s=1
